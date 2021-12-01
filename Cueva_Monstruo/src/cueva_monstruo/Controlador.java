@@ -19,12 +19,12 @@ public class Controlador extends JPanel {
     
     private JButton iniciar;
     private JButton reset;
+    private JButton monstruo;
+    private JButton precipicio;
+    private JButton tesoro;
     private JButton rapido;
     private JButton lento;
-    private JButton muro;
-    private JButton robot;
     private JLabel vel;
-    private int velocidad = 0;
     
     public Controlador(){
         iniciar = new JButton("iniciar");
@@ -33,17 +33,20 @@ public class Controlador extends JPanel {
         reset = new JButton("reset");
         reset.setBounds(20, 50, 40, 70);
         
+        monstruo = new JButton("monstruo");
+        monstruo.setBounds(20, 80, 40, 100);
+        
+        precipicio = new JButton("precipicio");
+        precipicio.setBounds(20, 110, 40, 130);
+        
+        tesoro = new JButton("tesoro");
+        tesoro.setBounds(20, 140, 40, 160);
+        
         rapido = new JButton("rapido");
-        rapido.setBounds(20, 80, 40, 100);
-        
+        rapido.setBounds(20, 170, 40, 190);
+
         lento = new JButton("lento");
-        lento.setBounds(20, 110, 40, 130);
-        
-        muro = new JButton("muro");
-        muro.setBounds(20, 140, 40, 160);
-        
-        robot = new JButton("robot");
-        robot.setBounds(20, 170, 40, 190);
+        lento.setBounds(20, 200, 40, 220);
         
         initComponents();
     }
@@ -70,6 +73,24 @@ public class Controlador extends JPanel {
                 vel.setText("Velocidad: 0%");
             }
         });
+        monstruo.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                Cueva_Monstruo.monstruo();
+            }
+        });
+        precipicio.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                Cueva_Monstruo.precipicio();
+            }
+        });
+        tesoro.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                Cueva_Monstruo.tesoro();
+            }
+        });
         rapido.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -84,27 +105,16 @@ public class Controlador extends JPanel {
                 vel.setText("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
             }
         });
-        muro.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Cueva_Monstruo.muro();
-            }
-        });
-        robot.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Cueva_Monstruo.robot();
-            }
-        });
         
         vel = new JLabel("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
         
         this.add(iniciar);
         this.add(reset);
+        this.add(monstruo);
+        this.add(precipicio);
+        this.add(tesoro);
         this.add(rapido);
         this.add(lento);
-        this.add(muro);
-        this.add(robot);
         this.add(vel);
     }
 }

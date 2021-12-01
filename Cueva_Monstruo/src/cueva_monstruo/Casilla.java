@@ -16,43 +16,49 @@ import java.awt.geom.Rectangle2D;
  */
 public class Casilla {
     
-    private boolean muro;
-    private boolean robot;
+    private CasillaTipo tipo;
     private Color color; // cambiar color por imagen
     private final Rectangle2D.Float rectang;
     
     
     public Casilla(Rectangle2D.Float rectang){
-        muro = false;
-        robot = false;
+        tipo = CasillaTipo.Nada;
         this.rectang = rectang;
         this.color = Color.WHITE;
     }
     
-    public void ColorearCasilla(boolean borrar) { //método para colorear la casilla
-        if(!robot){
-            if (borrar) {
-                color = Color.WHITE; //si borrar es "true", se pinta de blanco
-                muro = false;
-            } else {
-                if (color == Color.WHITE) { //si el color de la casilla es blanco, se pinta de negro
+    public void ColorearCasilla(CasillaTipo casillaTipo) { //método para colorear la casilla
+        if (!CasillaTipo.Nada.equals(tipo)) {
+            color = Color.WHITE; //si borrar es "true", se pinta de blanco
+            tipo = CasillaTipo.Nada;
+        } else {
+            //switch pintar precipicio, monstruo, tesoro
+            switch(casillaTipo){
+                case Monstruo:
+                    color = Color.RED;
+                    tipo = CasillaTipo.Monstruo;
+                    break;
+                case Precipicio:
                     color = Color.BLACK;
-                    muro = true;
-                } else {
-                    color = Color.WHITE; // si el color de la casilla es negro, se pinta de blanco
-                    muro = false;
-                }
+                    tipo = CasillaTipo.Precipicio;
+                    break;
+                case Tesoro:
+                    color = Color.YELLOW;
+                    tipo = CasillaTipo.Tesoro;
+                    break;
+                default:
+                    break;
             }
         }
     }
     
     public void pintaRobot(){
-        if (color == Color.WHITE) { //si el color de la casilla es blanco, se pinta de azul
+        if (CasillaTipo.Nada.equals(tipo)) { //si el color de la casilla es blanco, se pinta de azul
             color = Color.BLUE;
-            robot = true;
+            tipo = CasillaTipo.Robot;
         } else {
             color = Color.WHITE;
-            robot = false;
+            tipo = CasillaTipo.Nada;
         }
     }
     
@@ -65,11 +71,11 @@ public class Casilla {
     }
     
     public boolean hayMuro() {
-        return muro;
+        return true;
     }
     
     public boolean hayRobot() {
-        return robot;
+        return true;
     }
     
 }

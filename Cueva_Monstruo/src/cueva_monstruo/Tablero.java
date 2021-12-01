@@ -21,8 +21,7 @@ public class Tablero extends JPanel{
     private static final int dimension = 600; //dimensión de un lado del tablero
     private Casilla tablero[][];
     private static int lado;
-    private boolean borrar;
-    private boolean muro = true;
+    private CasillaTipo casilla = CasillaTipo.Monstruo;
     
     public Tablero(int n){
         initComponents(n);
@@ -32,7 +31,6 @@ public class Tablero extends JPanel{
         tablero = new Casilla[n][n];
         elementos = n;
         lado = dimension/elementos;
-        borrar = false;
         
         int eje_y = 0;
         for(int i = 0; i < n; i++){
@@ -50,13 +48,7 @@ public class Tablero extends JPanel{
     public void Colorear(int x, int y) { //método para colorear una casilla
         x = x / lado; //calculamos la columna de la casilla clickeada
         y = y / lado; //calculamos la fila de la casilla clickeada
-        if(muro){
-            tablero[y][x].ColorearCasilla(borrar);
-        }else{
-            if(robot == null || !robot.getMovimiento()){
-                ponerRobot(x,y);
-            }
-        }
+        tablero[y][x].ColorearCasilla(casilla);
     }
     
     public void ponerRobot(int x, int y) {
@@ -214,8 +206,8 @@ public class Tablero extends JPanel{
         }
     }
 
-    void setMuro(boolean b) {
-        this.muro = b;
+    public void setCasillaTipo(CasillaTipo c) {
+        this.casilla = c;
     }
     
 }

@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -23,17 +24,18 @@ public class Cueva_Monstruo extends JFrame implements MouseListener{
     
     static Tablero tablero; //instancia de la clase tablero
     
-    static int n = 20;
+    static int n;
     
     public Cueva_Monstruo(){
         // TODO code application logic here
-        this.setTitle("Robot");
+        this.setTitle("Monstruo");
         initComponents();
         this.setDefaultCloseOperation(Cueva_Monstruo.EXIT_ON_CLOSE);
     }
     
     public void initComponents() { //se inicializan los componentes de la ventana
         //se inicializa el tablero
+        n = Integer.parseInt(JOptionPane.showInputDialog("Inserte el número de casillas"));
         tablero = new Tablero(n);
         tablero.addMouseListener(this);
         tablero.setLocation(50, 50);
@@ -84,12 +86,16 @@ public class Cueva_Monstruo extends JFrame implements MouseListener{
         tablero.resetTablero();
     }
     
-    public static void muro(){
-        tablero.setMuro(true);
+    public static void monstruo(){
+        tablero.setCasillaTipo(CasillaTipo.Monstruo);
     }
     
-    public static void robot(){
-        tablero.setMuro(false);
+    public static void precipicio(){
+        tablero.setCasillaTipo(CasillaTipo.Precipicio);
+    }
+    
+    public static void tesoro(){
+        tablero.setCasillaTipo(CasillaTipo.Tesoro);
     }
     
     @Override
