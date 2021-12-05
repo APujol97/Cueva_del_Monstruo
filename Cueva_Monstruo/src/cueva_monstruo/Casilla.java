@@ -71,24 +71,32 @@ public class Casilla {
         g2d.draw(rectang); //dibujamos los contornos de la casilla de negro
     }
     
-    public void setHedor(){
-        this.observaciones[0] = !this.observaciones[0];
+    public void setHedor(boolean h){
+        this.observaciones[0] = h;
     }
     
-    public void setBrisa(){
-        this.observaciones[1] = !this.observaciones[1];
+    public void setBrisa(boolean b){
+        this.observaciones[1] = b;
     }
     
-    public void setResplandor(){
-        this.observaciones[2] = !this.observaciones[2];
+    public void setResplandor(boolean r){
+        this.observaciones[2] = r;
     }
     
     public boolean[] getObservaciones(){
         return this.observaciones;
     }
     
-    public boolean hayMuro() {
-        return true;
+    public boolean hayMonstruo(){
+        return CasillaTipo.Monstruo.equals(tipo);
+    }
+    
+    public boolean hayPrecipicio(){
+        return CasillaTipo.Precipicio.equals(tipo);
+    }
+    
+    public boolean hayTesoro(){
+        return CasillaTipo.Tesoro.equals(tipo);
     }
     
     public boolean hayRobot() {
