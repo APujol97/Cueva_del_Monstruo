@@ -51,22 +51,6 @@ public class Tablero extends JPanel{
         tablero[y][x].ColorearCasilla(casilla);
     }
     
-    public void ponerRobot(int x, int y) {
-        if(!tablero[y][x].hayMuro()){
-            if(!tablero[y][x].hayRobot()){
-                if(robot != null){
-                    tablero[robot.getY()][robot.getX()].pintaRobot();
-                }
-                robot = new Robot(y, x);
-                tablero[y][x].pintaRobot();
-            }else{
-                robot = null;
-                tablero[y][x].pintaRobot();
-            }
-            
-        }
-    }
-    
     public void acelerar_robot(){
         if(robot != null){
             robot.acelerar();
@@ -98,67 +82,14 @@ public class Tablero extends JPanel{
     }
     
     public void informar(){
-        int[] percepciones = new int[8];
-        
-        //percepcion para bordes
-        if(robot.getX() == 0){
-            percepciones[0] = 1;
-            percepciones[6] = 1;
-            percepciones[7] = 1;
-        } else if(robot.getX() == (elementos-1)){
-            percepciones[2] = 1;
-            percepciones[3] = 1;
-            percepciones[4] = 1;
-        }
-        
-        if(robot.getY() == 0){
-            percepciones[0] = 1;
-            percepciones[1] = 1;
-            percepciones[2] = 1;
-        } else if(robot.getY() == (elementos-1)){
-            percepciones[4] = 1;
-            percepciones[5] = 1;
-            percepciones[6] = 1;
-        }
-        
-        int initX = robot.getX()-1;
-        int initY = robot.getY()-1;
-        int iter = 0;
-        //percepcion muros
-        for(int i = 0; i < 3; i++){
-            if((initX >=0) && (initY+i >= 0) && (initY+i < elementos) && (tablero[initY+i][initX].hayMuro())){
-                if(i == 0){
-                    percepciones[0] = 1;
-                } else if(i == 1){
-                    percepciones[7] = 1;
-                } else {
-                    percepciones[6] = 1;
-                }
-            }
-            
-            if((initY+i >= 0) && (i != 1) && (initY+i < elementos) && (tablero[initY+i][initX+1].hayMuro())){
-                if(i == 0){
-                    percepciones[1] = 1;
-                } else {
-                    percepciones[5] = 1;
-                }
-            }
-            
-            if((initX+2 < elementos) && (initY+i < elementos) && (initY+i >= 0) && (tablero[initY+i][initX+2].hayMuro())){
-                if(i == 0){
-                    percepciones[2] = 1;
-                } else if(i == 1){
-                    percepciones[3] = 1;
-                } else {
-                    percepciones[4] = 1;
-                }
-            }
-        }
-        robot.percibir(percepciones);
+        Casilla c = tablero[robot.getY()][robot.getX()];
+        robot.percibir(c.getObservaciones());
     }
     
     public boolean iniciarRobot(){
         boolean iniciado = false;
+        robot = new Robot(elementos-1, 0, elementos);
+        tablero[elementos-1][0].pintaRobot();
         if(robot != null){
             robot.setMovimiento(!robot.getMovimiento());
             iniciado = robot.getMovimiento();

@@ -20,16 +20,22 @@ public class Robot extends Thread{
     static int velocidad_salto = 100;
     private boolean moverse = false;
     
-    private int[] percepciones = {0,0,0,0,0,0,0,0};
+    private boolean[] percepciones = {false, false, false};
     private Direccion mov_previo= null;
-    private Direccion adyacencia = null;
-    private int[] caracteristicas = new int[4];
     private boolean vivo;
     
-    public Robot(int y, int x){
+    private Conocimiento[][] bc;
+    
+    public Robot(int y, int x, int elem){
         this.vivo = true;
         this.x = x;
         this.y = y;
+        bc = new Conocimiento[elem][elem];
+        for(int i = 0; i < elem; i++){
+            for(int j = 0; j < elem; j++){
+                bc[i][j] = new Conocimiento();
+            }
+        }
         this.start();
     }
 
@@ -47,6 +53,7 @@ public class Robot extends Thread{
             System.out.println("espero");
             while(moverse){
                 percibe();
+                actualizaBC();
                 avanzar();
                 try {
                     Thread.sleep((long) velocidad);
@@ -89,7 +96,7 @@ public class Robot extends Thread{
         return vel;
     }
     
-    public void percibir(int[] percepciones){
+    public void percibir(boolean[] percepciones){
         this.percepciones = percepciones;
         
     }
@@ -98,19 +105,69 @@ public class Robot extends Thread{
         Cueva_Monstruo.percepciones();
     }
     
+    public void actualizaBC(){
+        bc[y][x].setVisitada(true);
+        if(!percepciones[0] && !percepciones[1]){
+            if(y > 0){
+                bc[y-1][x].setOk(true);
+            }
+            if(y < bc.length -1){
+                bc[y+1][x].setOk(true);
+            }
+            if(x > 0){
+                bc[y][x-1].setOk(true);
+            }
+            if(x < bc.length -1){
+                bc[y][x+1].setOk(true);
+            }
+        }
+        
+        if(percepciones[0]){
+            bc[y][x].setHedor(true);
+            if(y > 0 && !bc[y-1][x].isOk()){
+                bc[y-1][x].setPosibleMonstruo(true);
+            }
+            if(y < bc.length-1 && !bc[y+1][x].isOk()){
+                bc[y+1][x].setPosibleMonstruo(true);
+            }
+            if(x > 0 && !bc[y][x-1].isOk()){
+                bc[y][x-1].setPosibleMonstruo(true);
+            }
+            if(x < bc.length-1 && !bc[y][x+1].isOk()){
+                bc[y][x+1].setPosibleMonstruo(true);
+            }
+        }
+        
+        if(percepciones[1]){
+            bc[y][x].setBrisa(true);
+            if(y > 0 && !bc[y-1][x].isOk()){
+                bc[y-1][x].setPosiblePrecipicio(true);
+            }
+            if(y < bc.length-1 && !bc[y+1][x].isOk()){
+                bc[y+1][x].setPosiblePrecipicio(true);
+            }
+            if(x > 0 && !bc[y][x-1].isOk()){
+                bc[y][x-1].setPosiblePrecipicio(true);
+            }
+            if(x < bc.length-1 && !bc[y][x+1].isOk()){
+                bc[y][x+1].setPosiblePrecipicio(true);
+            }
+        }
+    }
+    
     public void mover(Direccion dir){
         switch(dir){
             case NORTE:
-                this.y -= 1;
-                break;
-            case SUR:
                 this.y += 1;
                 break;
+            case SUR:
+                this.y -= 1;
+                break;
             case ESTE:
-                this.x += 1;
+                this.x -= 1;
                 break;
             case OESTE:
-                this.x -= 1;
+                this.x += 1;
                 break;
             default:
                 System.out.println("ERROR");
@@ -119,271 +176,37 @@ public class Robot extends Thread{
         Cueva_Monstruo.moverRobot(this.y, this.x, dir);
     }
     
-    public void evaluar(){
-        int[] carac = new int[4];
-        
-        if(percepciones[1] == 1 || percepciones[2] == 1){
-            carac[0] = 1;
+    public void moverAtras(Direccion dir){
+        Direccion atras = null;
+        switch(dir){
+            case NORTE:
+                atras = Direccion.SUR;
+                this.y += 1;
+                break;
+            case SUR:
+                atras = Direccion.NORTE;
+                this.y -= 1;
+                break;
+            case ESTE:
+                atras = Direccion.OESTE;
+                this.x -= 1;
+                break;
+            case OESTE:
+                atras = Direccion.ESTE;
+                this.x += 1;
+                break;
+            default:
+                System.out.println("ERROR");
+                break;
         }
-        
-        if(percepciones[3] == 1 || percepciones[4] == 1){
-            carac[1] = 1;
-        }
-        
-        if(percepciones[5] == 1 || percepciones[6] == 1){
-            carac[2] = 1;
-        }
-        
-        if(percepciones[7] == 1 || percepciones[0] == 1){
-            carac[3] = 1;
-        }
-        
-        this.caracteristicas = carac;
-    }
-    
-    private boolean tiene_pared(){
-        
-        boolean pared = false;
-        
-        for(int i = 0; i < caracteristicas.length; i++){
-            if(caracteristicas[i] == 1){
-                pared = true;
-            }
-        }
-        return pared;
+        Cueva_Monstruo.moverRobot(this.y, this.x, atras);
+        mov_previo = atras;
     }
     
     public void avanzar(){
-        this.evaluar();
-        
-        if(!tiene_pared()){
-            adyacencia = null;
+        System.out.println("Pos: " + this.y + "," + this.x);
+        if(y < 0 && bc[y-1][x].isOk() && !bc[y-1][x].isVisitada()){
+            mover(Direccion.NORTE);
         }
-        
-        if(adyacencia == null){
-            if(caracteristicas[0] == 1 && caracteristicas[1] == 0){
-                adyacencia = Direccion.NORTE;
-                mov_previo = Direccion.ESTE;
-                mover(Direccion.ESTE);
-            } else if(caracteristicas[1] == 1 && caracteristicas[2] == 0){
-                adyacencia = Direccion.ESTE;
-                mov_previo = Direccion.SUR;
-                mover(Direccion.SUR);
-            } else if(caracteristicas[2] == 1 && caracteristicas[3] == 0){
-                adyacencia = Direccion.SUR;
-                mov_previo = Direccion.OESTE;
-                mover(Direccion.OESTE);
-            } else if(caracteristicas[3] == 1 && caracteristicas[0] == 0){
-                adyacencia = Direccion.OESTE;
-                mov_previo = Direccion.NORTE;
-                mover(Direccion.NORTE);
-            } else if(percepciones[1] != 1){
-                mov_previo = Direccion.NORTE;
-                mover(Direccion.NORTE);
-            }
-        } else {
-            switch(mov_previo){
-                case NORTE:
-                    if(adyacencia == Direccion.ESTE){
-                        if(percepciones[1] == 0){
-                            if(percepciones[3] == 0){
-                                adyacencia = Direccion.SUR;
-                                mov_previo = Direccion.ESTE;
-                                mover(Direccion.ESTE);
-                            } else {
-                                mov_previo = Direccion.NORTE;
-                                mover(Direccion.NORTE);
-                            }
-                        } else if(percepciones[3] == 0){
-                            adyacencia = Direccion.SUR;
-                            mov_previo = Direccion.ESTE;
-                            mover(Direccion.ESTE);
-                        } else if(percepciones[7] == 0){
-                            adyacencia = Direccion.NORTE;
-                            mov_previo = Direccion.OESTE;
-                            mover(Direccion.OESTE);
-                        } else if(percepciones[5] == 0){
-                            adyacencia = Direccion.OESTE;
-                            mov_previo = Direccion.SUR;
-                            mover(Direccion.SUR);
-                        }
-                    } else if(adyacencia == Direccion.OESTE){
-                        if(percepciones[1] == 0){
-                            if(percepciones[7] == 0){
-                                adyacencia = Direccion.SUR;
-                                mov_previo = Direccion.OESTE;
-                                mover(Direccion.OESTE);
-                            } else {
-                                mov_previo = Direccion.NORTE;
-                                mover(Direccion.NORTE);
-                            }
-                        } else if(percepciones[7] == 0){
-                            adyacencia = Direccion.SUR;
-                            mov_previo = Direccion.OESTE;
-                            mover(Direccion.OESTE);
-                        } else if(percepciones[3] == 0){
-                            adyacencia = Direccion.NORTE;
-                            mov_previo = Direccion.ESTE;
-                            mover(Direccion.ESTE);
-                        } else if(percepciones[5] == 0){
-                            adyacencia = Direccion.ESTE;
-                            mov_previo = Direccion.SUR;
-                            mover(Direccion.SUR);
-                        }
-                    }
-                    break;
-                case SUR:
-                    if(adyacencia == Direccion.ESTE){
-                        if(percepciones[5] == 0){
-                            if(percepciones[3] == 0){
-                                adyacencia = Direccion.NORTE;
-                                mov_previo = Direccion.ESTE;
-                                mover(Direccion.ESTE);
-                            } else {
-                                mov_previo = Direccion.SUR;
-                                mover(Direccion.SUR);
-                            }
-                        } else if(percepciones[3] == 0){
-                            adyacencia = Direccion.NORTE;
-                            mov_previo = Direccion.ESTE;
-                            mover(Direccion.ESTE);
-                        } else if(percepciones[7] == 0){
-                            adyacencia = Direccion.SUR;
-                            mov_previo = Direccion.OESTE;
-                            mover(Direccion.OESTE);
-                        } else if(percepciones[1] == 0){
-                            adyacencia = Direccion.OESTE;
-                            mov_previo = Direccion.NORTE;
-                            mover(Direccion.NORTE);
-                        }
-                    } else if(adyacencia == Direccion.OESTE){
-                        if(percepciones[5] == 0){
-                            if(percepciones[7] == 0){
-                                adyacencia = Direccion.NORTE;
-                                mov_previo = Direccion.OESTE;
-                                mover(Direccion.OESTE);
-                            } else {
-                                mov_previo = Direccion.SUR;
-                                mover(Direccion.SUR);
-                            }
-                        } else if(percepciones[7] == 0){
-                            adyacencia = Direccion.NORTE;
-                            mov_previo = Direccion.OESTE;
-                            mover(Direccion.OESTE);
-                        } else if(percepciones[3] == 0){
-                            adyacencia = Direccion.SUR;
-                            mov_previo = Direccion.ESTE;
-                            mover(Direccion.ESTE);
-                        } else if(percepciones[1] == 0){
-                            adyacencia = Direccion.ESTE;
-                            mov_previo = Direccion.NORTE;
-                            mover(Direccion.NORTE);
-                        }
-                    }
-                    break;
-                case ESTE:
-                    if(adyacencia == Direccion.NORTE){
-                        if(percepciones[3] == 0){
-                            if(percepciones[1] == 0){
-                                adyacencia = Direccion.OESTE;
-                                mov_previo = Direccion.NORTE;
-                                mover(Direccion.NORTE);
-                            } else {
-                                mov_previo = Direccion.ESTE;
-                                mover(Direccion.ESTE);
-                            }
-                        } else if(percepciones[1] == 0){
-                            adyacencia = Direccion.OESTE;
-                            mov_previo = Direccion.NORTE;
-                            mover(Direccion.NORTE);
-                        } else if(percepciones[5] == 0){
-                            adyacencia = Direccion.ESTE;
-                            mov_previo = Direccion.SUR;
-                            mover(Direccion.SUR);
-                        } else if(percepciones[7] == 0){
-                            adyacencia = Direccion.SUR;
-                            mov_previo = Direccion.OESTE;
-                            mover(Direccion.OESTE);
-                        }
-                    } else if(adyacencia == Direccion.SUR){
-                        if(percepciones[3] == 0){
-                            if(percepciones[5] == 0){
-                                adyacencia = Direccion.OESTE;
-                                mov_previo = Direccion.SUR;
-                                mover(Direccion.SUR);
-                            } else {
-                                mov_previo = Direccion.ESTE;
-                                mover(Direccion.ESTE);
-                            }
-                        } else if(percepciones[5] == 0){
-                            adyacencia = Direccion.OESTE;
-                            mov_previo = Direccion.SUR;
-                            mover(Direccion.SUR);
-                        } else if(percepciones[1] == 0){
-                            adyacencia = Direccion.ESTE;
-                            mov_previo = Direccion.NORTE;
-                            mover(Direccion.NORTE);
-                        } else if(percepciones[7] == 0){
-                            adyacencia = Direccion.NORTE;
-                            mov_previo = Direccion.OESTE;
-                            mover(Direccion.OESTE);
-                        }
-                    }
-                    break;
-                case OESTE:
-                    if(adyacencia == Direccion.NORTE){
-                        if(percepciones[7] == 0){
-                            if(percepciones[1] == 0){
-                                adyacencia = Direccion.ESTE;
-                                mov_previo = Direccion.NORTE;
-                                mover(Direccion.NORTE);
-                            } else {
-                                mov_previo = Direccion.OESTE;
-                                mover(Direccion.OESTE);
-                            }
-                        } else if(percepciones[1] == 0){
-                            adyacencia = Direccion.ESTE;
-                            mov_previo = Direccion.NORTE;
-                            mover(Direccion.NORTE);
-                        } else if(percepciones[5] == 0){
-                            adyacencia = Direccion.OESTE;
-                            mov_previo = Direccion.SUR;
-                            mover(Direccion.SUR);
-                        } else if(percepciones[3] == 0){
-                            adyacencia = Direccion.SUR;
-                            mov_previo = Direccion.ESTE;
-                            mover(Direccion.ESTE);
-                        }
-                    } else if(adyacencia == Direccion.SUR){
-                        if(percepciones[7] == 0){
-                            if(percepciones[5] == 0){
-                                adyacencia = Direccion.ESTE;
-                                mov_previo = Direccion.SUR;
-                                mover(Direccion.SUR);
-                            } else {
-                                mov_previo = Direccion.OESTE;
-                                mover(Direccion.OESTE);
-                            }
-                        } else if(percepciones[5] == 0){
-                            adyacencia = Direccion.ESTE;
-                            mov_previo = Direccion.SUR;
-                            mover(Direccion.SUR);
-                        } else if(percepciones[1] == 0){
-                            adyacencia = Direccion.OESTE;
-                            mov_previo = Direccion.NORTE;
-                            mover(Direccion.NORTE);
-                        } else if(percepciones[3] == 0){
-                            adyacencia = Direccion.NORTE;
-                            mov_previo = Direccion.ESTE;
-                            mover(Direccion.ESTE);
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        
-        
     }
 }
