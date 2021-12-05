@@ -20,6 +20,8 @@ public class Robot extends Thread {
     static int velocidad_salto = 100;
     private boolean moverse = false;
 
+    private boolean tesoroEncontrado = false;
+    private boolean monstruoEncontrado = false;
     private boolean[] percepciones = {false, false, false};
     private Direccion mov_previo = null;
     private boolean vivo;
@@ -51,7 +53,7 @@ public class Robot extends Thread {
     public void run() {
         while (vivo) {
             System.out.println("espero");
-            while (moverse) {
+            while (!tesoroEncontrado) {
                 percibe();
                 actualizaBC();
                 try {
@@ -62,6 +64,8 @@ public class Robot extends Thread {
 
                 avanzar();
             }
+            //volverAtras();
+            muere();
         }
     }
 
@@ -107,7 +111,11 @@ public class Robot extends Thread {
     }
 
     public void actualizaBC() {
-        bc[y][x].setVisitada(true);
+        bc[y][x].setOk(true);
+        if(percepciones[2]){
+            tesoroEncontrado = true;
+        }
+        
         if (!percepciones[0] && !percepciones[1]) {
             if (y > 0) {
                 bc[y - 1][x].setOk(true);
@@ -123,20 +131,108 @@ public class Robot extends Thread {
             }
         }
 
-        if (percepciones[0]) {
-            System.out.println("huelo");
-            bc[y][x].setHedor(true);
-            if (y > 0 && !bc[y - 1][x].isOk()) {
-                bc[y - 1][x].setPosibleMonstruo(true);
+        if (y > 0 && !bc[y - 1][x].isOk()) {
+            if (bc[y - 1][x].isPosibleMonstruo() && !bc[y - 1][x].isPosiblePrecipicio() && !percepciones[0]) {
+                bc[y - 1][x].setOk(true);
+            } else if (!bc[y - 1][x].isPosibleMonstruo() && bc[y - 1][x].isPosiblePrecipicio() && !percepciones[1]) {
+                bc[y - 1][x].setOk(true);
             }
-            if (y < bc.length - 1 && !bc[y + 1][x].isOk()) {
-                bc[y + 1][x].setPosibleMonstruo(true);
+        }
+        if (y < bc.length - 1 && !bc[y + 1][x].isOk()) {
+            if (bc[y + 1][x].isPosibleMonstruo() && !bc[y + 1][x].isPosiblePrecipicio() && !percepciones[0]) {
+                bc[y + 1][x].setOk(true);
+            } else if (!bc[y + 1][x].isPosibleMonstruo() && bc[y + 1][x].isPosiblePrecipicio() && !percepciones[1]) {
+                bc[y + 1][x].setOk(true);
             }
-            if (x > 0 && !bc[y][x - 1].isOk()) {
-                bc[y][x - 1].setPosibleMonstruo(true);
+        }
+        if (x > 0 && !bc[y][x - 1].isOk()) {
+            if (bc[y][x - 1].isPosibleMonstruo() && !bc[y][x - 1].isPosiblePrecipicio() && !percepciones[0]) {
+                bc[y][x - 1].setOk(true);
+            } else if (!bc[y][x - 1].isPosibleMonstruo() && bc[y][x - 1].isPosiblePrecipicio() && !percepciones[1]) {
+                bc[y][x - 1].setOk(true);
             }
-            if (x < bc.length - 1 && !bc[y][x + 1].isOk()) {
-                bc[y][x + 1].setPosibleMonstruo(true);
+        }
+        if (x < bc.length - 1 && !bc[y][x + 1].isOk()) {
+            if (bc[y][x + 1].isPosibleMonstruo() && !bc[y][x + 1].isPosiblePrecipicio() && !percepciones[0]) {
+                bc[y][x + 1].setOk(true);
+            } else if (!bc[y][x + 1].isPosibleMonstruo() && bc[y][x + 1].isPosiblePrecipicio() && !percepciones[1]) {
+                bc[y][x + 1].setOk(true);
+            }
+        }
+
+        if (!monstruoEncontrado) {
+            if (percepciones[0]) {
+                System.out.println("huelo");
+                bc[y][x].setHedor(true);
+                if (y > 0 && !bc[y - 1][x].isOk() && bc[y - 1][x].isPosibleMonstruo()) {
+                    monstruoEncontrado = true;
+                    for (int i = 0; i < bc.length; i++) {
+                        for (int j = 0; j < bc.length; j++) {
+                            if (bc[i][j].isPosibleMonstruo() && i != y - 1 && j != x && !bc[i][j].isPosiblePrecipicio()) {
+                                bc[i][j].setOk(true);
+                            }
+                        }
+                    }
+                }
+                if (y < bc.length - 1 && !bc[y + 1][x].isOk() && bc[y + 1][x].isPosibleMonstruo()) {
+                    monstruoEncontrado = true;
+                    for (int i = 0; i < bc.length; i++) {
+                        for (int j = 0; j < bc.length; j++) {
+                            if (bc[i][j].isPosibleMonstruo() && i != y + 1 && j != x && !bc[i][j].isPosiblePrecipicio()) {
+                                bc[i][j].setOk(true);
+                            }
+                        }
+                    }
+                }
+                if (x > 0 && !bc[y][x - 1].isOk() && bc[y][x - 1].isPosibleMonstruo()) {
+                    monstruoEncontrado = true;
+                    for (int i = 0; i < bc.length; i++) {
+                        for (int j = 0; j < bc.length; j++) {
+                            if (bc[i][j].isPosibleMonstruo() && i != y && j != x - 1 && !bc[i][j].isPosiblePrecipicio()) {
+                                bc[i][j].setOk(true);
+                            }
+                        }
+                    }
+                }
+                if (x < bc.length - 1 && !bc[y][x + 1].isOk() && bc[y][x + 1].isPosibleMonstruo()) {
+                    monstruoEncontrado = true;
+                    for (int i = 0; i < bc.length; i++) {
+                        for (int j = 0; j < bc.length; j++) {
+                            if (bc[i][j].isPosibleMonstruo() && i != y && j != x + 1 && !bc[i][j].isPosiblePrecipicio()) {
+                                bc[i][j].setOk(true);
+                            }
+                        }
+                    }
+                }
+                if (!monstruoEncontrado) {
+                    if (y > 0 && !bc[y - 1][x].isOk()) {
+                        bc[y - 1][x].setPosibleMonstruo(true);
+                    }
+                    if (y < bc.length - 1 && !bc[y + 1][x].isOk()) {
+                        bc[y + 1][x].setPosibleMonstruo(true);
+                    }
+                    if (x > 0 && !bc[y][x - 1].isOk()) {
+                        bc[y][x - 1].setPosibleMonstruo(true);
+                    }
+                    if (x < bc.length - 1 && !bc[y][x + 1].isOk()) {
+                        bc[y][x + 1].setPosibleMonstruo(true);
+                    }
+                }
+            }
+        } else {
+            if (percepciones[0]) {
+                if (y > 0 && !bc[y - 1][x].isOk() && !bc[y - 1][x].isPosibleMonstruo() && !bc[y - 1][x].isPosiblePrecipicio()) {
+                    bc[y - 1][x].setOk(true);
+                }
+                if (y < bc.length - 1 && !bc[y + 1][x].isOk() && !bc[y + 1][x].isPosibleMonstruo() && !bc[y + 1][x].isPosiblePrecipicio()) {
+                    bc[y + 1][x].setOk(true);
+                }
+                if (x > 0 && !bc[y][x - 1].isOk() && !bc[y][x - 1].isPosibleMonstruo() && !bc[y][x - 1].isPosiblePrecipicio()) {
+                    bc[y][x - 1].setOk(true);
+                }
+                if (x < bc.length - 1 && !bc[y][x + 1].isOk() && !bc[y][x + 1].isPosibleMonstruo() && !bc[y][x + 1].isPosiblePrecipicio()) {
+                    bc[y][x + 1].setOk(true);
+                }
             }
         }
 
@@ -155,6 +251,7 @@ public class Robot extends Thread {
                 bc[y][x + 1].setPosiblePrecipicio(true);
             }
         }
+        bc[y][x].setVisitada(true);
     }
 
     public void mover(Direccion dir) {
@@ -175,6 +272,7 @@ public class Robot extends Thread {
                 System.out.println("ERROR");
                 break;
         }
+        mov_previo = dir;
         Cueva_Monstruo.moverRobot(this.y, this.x, dir);
     }
 
@@ -206,24 +304,27 @@ public class Robot extends Thread {
     }
 
     public void avanzar() {
-        System.out.println("pos:"+this.y+","+this.x);
         if (y > 0 && bc[y - 1][x].isOk() && !bc[y - 1][x].isVisitada()) {
-//            for(int i = 0; i < percepciones.length; i++){
-//                System.out.print(","+percepciones[i]);
-//            }
-//            System.out.println("\n");
             mover(Direccion.NORTE);
-        } else if (x < bc.length-1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
+        } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
             mover(Direccion.ESTE);
-        } else if (y < bc.length-1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
+        } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
             mover(Direccion.SUR);
         } else if (x > 0 && bc[y][x - 1].isOk() && !bc[y][x - 1].isVisitada()) {
             mover(Direccion.OESTE);
+        } else if (y > 0 && bc[y - 1][x].isOk() && !Direccion.SUR.equals(mov_previo)) {
+            mover(Direccion.NORTE);
+        } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !Direccion.OESTE.equals(mov_previo)) {
+            mover(Direccion.ESTE);
+        } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !Direccion.NORTE.equals(mov_previo)) {
+            mover(Direccion.SUR);
+        } else if (x > 0 && bc[y][x - 1].isOk() && !Direccion.ESTE.equals(mov_previo)) {
+            mover(Direccion.OESTE);
         } else if (y > 0 && bc[y - 1][x].isOk()) {
             mover(Direccion.NORTE);
-        } else if (x < bc.length-1 && bc[y][x + 1].isOk()) {
+        } else if (x < bc.length - 1 && bc[y][x + 1].isOk()) {
             mover(Direccion.ESTE);
-        } else if (y < bc.length-1 && bc[y + 1][x].isOk()) {
+        } else if (y < bc.length - 1 && bc[y + 1][x].isOk()) {
             mover(Direccion.SUR);
         } else if (x > 0 && bc[y][x - 1].isOk()) {
             mover(Direccion.OESTE);

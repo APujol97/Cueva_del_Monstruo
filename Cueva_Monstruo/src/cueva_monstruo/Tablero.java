@@ -52,36 +52,36 @@ public class Tablero extends JPanel {
                     if (i > 0) {
                         tablero[i - 1][j].setHedor(true);
                     }
-                    if (i < elementos-1) {
+                    if (i < elementos - 1) {
                         tablero[i + 1][j].setHedor(true);
                     }
                     if (j > 0) {
                         tablero[i][j - 1].setHedor(true);
                     }
-                    if (j < elementos-1) {
+                    if (j < elementos - 1) {
                         tablero[i][j + 1].setHedor(true);
                     }
                 }
-                
+
                 if (tablero[i][j].hayPrecipicio()) {
                     if (i > 0) {
                         tablero[i - 1][j].setBrisa(true);
                     }
-                    if (i < elementos-1) {
+                    if (i < elementos - 1) {
                         tablero[i + 1][j].setBrisa(true);
                     }
                     if (j > 0) {
                         tablero[i][j - 1].setBrisa(true);
                     }
-                    if (j < elementos-1) {
+                    if (j < elementos - 1) {
                         tablero[i][j + 1].setBrisa(true);
                     }
                 }
-                
+
                 if (tablero[i][j].hayTesoro()) {
                     tablero[i][j].setResplandor(true);
                 }
-                
+
             }
         }
     }
@@ -128,13 +128,15 @@ public class Tablero extends JPanel {
     }
 
     public boolean iniciarRobot() {
-        iniciarMapa();
         boolean iniciado = false;
-        robot = new Robot(elementos - 1, 0, elementos);
-        tablero[elementos - 1][0].pintaRobot();
-        if (robot != null) {
-            robot.setMovimiento(!robot.getMovimiento());
-            iniciado = robot.getMovimiento();
+        if (robot == null) {
+            iniciarMapa();
+            robot = new Robot(elementos - 1, 0, elementos);
+            tablero[elementos - 1][0].pintaRobot();
+            if (robot != null) {
+                robot.setMovimiento(!robot.getMovimiento());
+                iniciado = robot.getMovimiento();
+            }
         }
         return iniciado;
     }
