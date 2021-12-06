@@ -29,6 +29,12 @@ public class Robot extends Thread {
     private Direccion mov_previo = null;
     private boolean vivo;
     private Camino camino = null;
+    
+    private int pasos = 0;
+    private int prioridad_1;
+    private int prioridad_2;
+    private int prioridad_3;
+    private int prioridad_4;
 
     private Conocimiento[][] bc;
 
@@ -42,6 +48,10 @@ public class Robot extends Thread {
                 bc[i][j] = new Conocimiento();
             }
         }
+        this.prioridad_1 = (elem + 2) * (elem + 1);
+        this.prioridad_2 = prioridad_1 * 2;
+        this.prioridad_3 = prioridad_1 * 3;
+        this.prioridad_4 = prioridad_1 * 4;
         this.start();
     }
 
@@ -311,30 +321,116 @@ public class Robot extends Thread {
     }
 
     public void avanzar() {
-        if (y > 0 && bc[y - 1][x].isOk() && !bc[y - 1][x].isVisitada()) {
-            mover(Direccion.NORTE);
-        } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
-            mover(Direccion.ESTE);
-        } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
-            mover(Direccion.SUR);
-        } else if (x > 0 && bc[y][x - 1].isOk() && !bc[y][x - 1].isVisitada()) {
-            mover(Direccion.OESTE);
-        } else if (y > 0 && bc[y - 1][x].isOk() && !Direccion.SUR.equals(mov_previo)) {
-            mover(Direccion.NORTE);
-        } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !Direccion.OESTE.equals(mov_previo)) {
-            mover(Direccion.ESTE);
-        } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !Direccion.NORTE.equals(mov_previo)) {
-            mover(Direccion.SUR);
-        } else if (x > 0 && bc[y][x - 1].isOk() && !Direccion.ESTE.equals(mov_previo)) {
-            mover(Direccion.OESTE);
-        } else if (y > 0 && bc[y - 1][x].isOk()) {
-            mover(Direccion.NORTE);
-        } else if (x < bc.length - 1 && bc[y][x + 1].isOk()) {
-            mover(Direccion.ESTE);
-        } else if (y < bc.length - 1 && bc[y + 1][x].isOk()) {
-            mover(Direccion.SUR);
-        } else if (x > 0 && bc[y][x - 1].isOk()) {
-            mover(Direccion.OESTE);
+        if (pasos < prioridad_1) { // prioridad NORTE-ESTE
+            if (y > 0 && bc[y - 1][x].isOk() && !bc[y - 1][x].isVisitada()) {
+                mover(Direccion.NORTE);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
+                mover(Direccion.ESTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
+                mover(Direccion.SUR);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !bc[y][x - 1].isVisitada()) {
+                mover(Direccion.OESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk() && !Direccion.SUR.equals(mov_previo)) {
+                mover(Direccion.NORTE);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !Direccion.OESTE.equals(mov_previo)) {
+                mover(Direccion.ESTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !Direccion.NORTE.equals(mov_previo)) {
+                mover(Direccion.SUR);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !Direccion.ESTE.equals(mov_previo)) {
+                mover(Direccion.OESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk()) {
+                mover(Direccion.NORTE);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk()) {
+                mover(Direccion.ESTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk()) {
+                mover(Direccion.SUR);
+            } else if (x > 0 && bc[y][x - 1].isOk()) {
+                mover(Direccion.OESTE);
+            }
+            pasos++;
+        } else if (pasos < prioridad_2) { // prioridad NORTE-OESTE
+            if (y > 0 && bc[y - 1][x].isOk() && !bc[y - 1][x].isVisitada()) {
+                mover(Direccion.NORTE);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !bc[y][x - 1].isVisitada()) {
+                mover(Direccion.OESTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
+                mover(Direccion.SUR);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
+                mover(Direccion.ESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk() && !Direccion.SUR.equals(mov_previo)) {
+                mover(Direccion.NORTE);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !Direccion.ESTE.equals(mov_previo)) {
+                mover(Direccion.OESTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !Direccion.NORTE.equals(mov_previo)) {
+                mover(Direccion.SUR);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !Direccion.OESTE.equals(mov_previo)) {
+                mover(Direccion.ESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk()) {
+                mover(Direccion.NORTE);
+            } else if (x > 0 && bc[y][x - 1].isOk()) {
+                mover(Direccion.OESTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk()) {
+                mover(Direccion.SUR);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk()) {
+                mover(Direccion.ESTE);
+            }
+            pasos++;
+        } else if (pasos < prioridad_3){ // prioridad SUR-ESTE
+            if (y < bc.length - 1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
+                mover(Direccion.SUR);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
+                mover(Direccion.ESTE);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !bc[y][x - 1].isVisitada()) {
+                mover(Direccion.OESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk() && !bc[y - 1][x].isVisitada()) {
+                mover(Direccion.NORTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !Direccion.NORTE.equals(mov_previo)) {
+                mover(Direccion.SUR);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !Direccion.OESTE.equals(mov_previo)) {
+                mover(Direccion.ESTE);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !Direccion.ESTE.equals(mov_previo)) {
+                mover(Direccion.OESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk() && !Direccion.SUR.equals(mov_previo)) {
+                mover(Direccion.NORTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk()) {
+                mover(Direccion.SUR);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk()) {
+                mover(Direccion.ESTE);
+            } else if (x > 0 && bc[y][x - 1].isOk()) {
+                mover(Direccion.OESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk()) {
+                mover(Direccion.NORTE);
+            }
+            pasos++;
+        } else if (pasos < prioridad_4){ // prioridad SUR-OESTE
+            if (y < bc.length - 1 && bc[y + 1][x].isOk() && !bc[y + 1][x].isVisitada()) {
+                mover(Direccion.SUR);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !bc[y][x - 1].isVisitada()) {
+                mover(Direccion.OESTE);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !bc[y][x + 1].isVisitada()) {
+                mover(Direccion.ESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk() && !bc[y - 1][x].isVisitada()) {
+                mover(Direccion.NORTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk() && !Direccion.NORTE.equals(mov_previo)) {
+                mover(Direccion.SUR);
+            } else if (x > 0 && bc[y][x - 1].isOk() && !Direccion.ESTE.equals(mov_previo)) {
+                mover(Direccion.OESTE);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk() && !Direccion.OESTE.equals(mov_previo)) {
+                mover(Direccion.ESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk() && !Direccion.SUR.equals(mov_previo)) {
+                mover(Direccion.NORTE);
+            } else if (y < bc.length - 1 && bc[y + 1][x].isOk()) {
+                mover(Direccion.SUR);
+            } else if (x > 0 && bc[y][x - 1].isOk()) {
+                mover(Direccion.OESTE);
+            } else if (x < bc.length - 1 && bc[y][x + 1].isOk()) {
+                mover(Direccion.ESTE);
+            } else if (y > 0 && bc[y - 1][x].isOk()) {
+                mover(Direccion.NORTE);
+            }
+            pasos++;
+        } else {
+            pasos = 0;
         }
     }
 
