@@ -5,9 +5,6 @@
  */
 package cueva_monstruo;
 
-import java.awt.List;
-import java.util.ArrayList;
-
 /**
  *
  * @author pujol
@@ -200,7 +197,6 @@ public class Robot extends Thread {
 
         if (!monstruoEncontrado) {
             if (percepciones[0]) {
-                System.out.println("huelo");
                 bc[y][x].setHedor(true);
                 if (y > 0 && !bc[y - 1][x].isOk() && bc[y - 1][x].isPosibleMonstruo()) {
                     monstruoEncontrado = true;
@@ -437,7 +433,6 @@ public class Robot extends Thread {
     public void volverAtras() {
         camino = camino.getCasillaAnterior();
         while (camino != null) {
-            System.out.println("voy a: " + camino.getY() + "," + camino.getX());
             try {
                 Thread.sleep((long) velocidad);
             } catch (InterruptedException ex) {
