@@ -54,12 +54,23 @@ public class Casilla {
     }
     
     public void pintaRobot(){
-        if (CasillaTipo.Nada.equals(tipo)) { //si el color de la casilla es blanco, se pinta de azul
-            color = Color.BLUE;
-            tipo = CasillaTipo.Robot;
-        } else {
+        if (null == tipo) {
             color = Color.WHITE;
             tipo = CasillaTipo.Nada;
+        } else switch (tipo) {
+            case Nada:
+                //si el color de la casilla es blanco, se pinta de azul
+                color = Color.BLUE;
+                tipo = CasillaTipo.Robot;
+                break;
+            case Tesoro:
+                color = Color.BLUE;
+                tipo = CasillaTipo.Robot;
+                break;
+            default:
+                color = Color.WHITE;
+                tipo = CasillaTipo.Nada;
+                break;
         }
     }
     

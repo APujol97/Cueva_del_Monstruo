@@ -5,6 +5,9 @@
  */
 package cueva_monstruo;
 
+import java.awt.List;
+import java.util.ArrayList;
+
 /**
  *
  * @author pujol
@@ -25,6 +28,7 @@ public class Robot extends Thread {
     private boolean[] percepciones = {false, false, false};
     private Direccion mov_previo = null;
     private boolean vivo;
+    private Camino camino = null;
 
     private Conocimiento[][] bc;
 
@@ -53,7 +57,7 @@ public class Robot extends Thread {
     public void run() {
         while (vivo) {
             System.out.println("espero");
-            while (!tesoroEncontrado) {
+            while (!tesoroEncontrado && moverse) {
                 percibe();
                 actualizaBC();
                 try {
@@ -64,8 +68,10 @@ public class Robot extends Thread {
 
                 avanzar();
             }
-            //volverAtras();
-            muere();
+            if (moverse) {
+                volverAtras();
+                muere();
+            }
         }
     }
 
@@ -112,10 +118,32 @@ public class Robot extends Thread {
 
     public void actualizaBC() {
         bc[y][x].setOk(true);
-        if(percepciones[2]){
+
+        if (camino != null) {
+            Camino caminoTMP = camino;
+            boolean casillaRepetida = false;
+            while (caminoTMP != null) {
+                if (caminoTMP.getX() == x && caminoTMP.getY() == y) {
+                    casillaRepetida = true;
+                    camino = caminoTMP;
+                    caminoTMP = null;
+                } else {
+                    caminoTMP = caminoTMP.getCasillaAnterior();
+                }
+            }
+            if (!casillaRepetida) {
+                caminoTMP = camino;
+                camino = new Camino(y, x);
+                camino.addCasillaAnterior(caminoTMP);
+            }
+        } else {
+            camino = new Camino(y, x);
+        }
+
+        if (percepciones[2]) {
             tesoroEncontrado = true;
         }
-        
+
         if (!percepciones[0] && !percepciones[1]) {
             if (y > 0) {
                 bc[y - 1][x].setOk(true);
@@ -276,31 +304,10 @@ public class Robot extends Thread {
         Cueva_Monstruo.moverRobot(this.y, this.x, dir);
     }
 
-    public void moverAtras(Direccion dir) {
-        Direccion atras = null;
-        switch (dir) {
-            case NORTE:
-                atras = Direccion.SUR;
-                this.y += 1;
-                break;
-            case SUR:
-                atras = Direccion.NORTE;
-                this.y -= 1;
-                break;
-            case ESTE:
-                atras = Direccion.OESTE;
-                this.x -= 1;
-                break;
-            case OESTE:
-                atras = Direccion.ESTE;
-                this.x += 1;
-                break;
-            default:
-                System.out.println("ERROR");
-                break;
-        }
-        Cueva_Monstruo.moverRobot(this.y, this.x, atras);
-        mov_previo = atras;
+    public void moverAtras(int yNuevo, int xNuevo, int y, int x) {
+        this.x = xNuevo;
+        this.y = yNuevo;
+        Cueva_Monstruo.moverRobot(yNuevo, xNuevo, y, x);
     }
 
     public void avanzar() {
@@ -328,6 +335,20 @@ public class Robot extends Thread {
             mover(Direccion.SUR);
         } else if (x > 0 && bc[y][x - 1].isOk()) {
             mover(Direccion.OESTE);
+        }
+    }
+
+    public void volverAtras() {
+        camino = camino.getCasillaAnterior();
+        while (camino != null) {
+            System.out.println("voy a: " + camino.getY() + "," + camino.getX());
+            try {
+                Thread.sleep((long) velocidad);
+            } catch (InterruptedException ex) {
+                //System.out.println(ex.getMessage());
+            }
+            moverAtras(camino.getY(), camino.getX(), y, x);
+            camino = camino.getCasillaAnterior();
         }
     }
 }

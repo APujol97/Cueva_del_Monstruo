@@ -24,7 +24,6 @@ public class Controlador extends JPanel {
     private JButton tesoro;
     private JButton rapido;
     private JButton lento;
-    private JLabel vel;
     
     public Controlador(){
         iniciar = new JButton("iniciar");
@@ -58,10 +57,8 @@ public class Controlador extends JPanel {
             public void actionPerformed(ActionEvent ae) {
                 if(Cueva_Monstruo.iniciar()){
                     iniciar.setText("pausar");
-                    vel.setText("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
                 } else {
                     iniciar.setText("iniciar");
-                    vel.setText("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
                 }
             }
         });
@@ -70,7 +67,6 @@ public class Controlador extends JPanel {
             public void actionPerformed(ActionEvent ae) {
                 iniciar.setText("iniciar");
                 Cueva_Monstruo.reset();
-                vel.setText("Velocidad: 0%");
             }
         });
         monstruo.addActionListener(new ActionListener(){
@@ -95,18 +91,14 @@ public class Controlador extends JPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 Cueva_Monstruo.acelerar_robot();
-                vel.setText("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
             }
         });
         lento.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent ae) {
                 Cueva_Monstruo.decelerar_robot();
-                vel.setText("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
             }
         });
-        
-        vel = new JLabel("Velocidad: " + Cueva_Monstruo.get_velocidad_robot() + "%");
         
         this.add(iniciar);
         this.add(reset);
@@ -115,6 +107,5 @@ public class Controlador extends JPanel {
         this.add(tesoro);
         this.add(rapido);
         this.add(lento);
-        this.add(vel);
     }
 }

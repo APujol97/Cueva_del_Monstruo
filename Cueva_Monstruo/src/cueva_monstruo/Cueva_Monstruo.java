@@ -70,6 +70,10 @@ public class Cueva_Monstruo extends JFrame implements MouseListener{
         tablero.moverRobot(y,x,dir);
     }
     
+    public static void moverRobot(int yNuevo, int xNuevo, int y, int x){
+        tablero.moverRobot(yNuevo,xNuevo,y,x);
+    }
+    
     public static void acelerar_robot(){
         tablero.acelerar_robot();
     }

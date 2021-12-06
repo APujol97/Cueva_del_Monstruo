@@ -133,11 +133,11 @@ public class Tablero extends JPanel {
             iniciarMapa();
             robot = new Robot(elementos - 1, 0, elementos);
             tablero[elementos - 1][0].pintaRobot();
-            if (robot != null) {
+        }
+        if (robot != null) {
                 robot.setMovimiento(!robot.getMovimiento());
                 iniciado = robot.getMovimiento();
             }
-        }
         return iniciado;
     }
 
@@ -146,7 +146,7 @@ public class Tablero extends JPanel {
     }
 
     public void moverRobot(int y, int x, Direccion dir) {
-        switch (dir) {
+        switch (dir) { //borra robot anterior
             case NORTE:
                 tablero[y + 1][x].pintaRobot();
                 break;
@@ -163,7 +163,13 @@ public class Tablero extends JPanel {
                 System.out.println("ERROR");
                 break;
         }
+        tablero[y][x].pintaRobot(); // pinta nuevo robot
+    }
+    
+    public void moverRobot(int yNuevo, int xNuevo, int y, int x) {
         tablero[y][x].pintaRobot();
+        tablero[yNuevo][xNuevo].pintaRobot(); // pinta nuevo robot
+        repaint();
     }
 
     @Override
